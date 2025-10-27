@@ -7,12 +7,10 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include "../include/token.h"
-#include "../include/exception.h"
-#include "../include/error_reporter.h"
-#include "../include/symbol_table.h"
-#include "../include/token_stream.h"
-
+#include "token.h"
+#include "exception.h"
+#include "error_reporter.h"
+#include "symbol_table.h"
 
 void read_prog(std::string& prog);
 

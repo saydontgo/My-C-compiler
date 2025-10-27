@@ -11,7 +11,6 @@ set(SOURCES
     src/lexical_analyzer.cpp
     src/error_reporter.cpp
     src/symbol_table.cpp
-    src/token_stream.cpp
     src/token.cpp
     src/exception.cpp
     src/main.cpp
