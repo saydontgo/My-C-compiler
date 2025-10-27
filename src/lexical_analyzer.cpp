@@ -1,6 +1,10 @@
 // C语言词法分析器
 #include "lexical_analyzer.h"
-
+#include "token.h"
+#include "exception.h"
+#include "error_reporter.h"
+#include "symbol_table.h"
+#include "token_stream.h"
 
 /* 不要修改这个标准输入函数 */
 void read_prog(std::string& prog)
@@ -16,7 +20,6 @@ void Analysis()
 {
 	std::string prog;
 	read_prog(prog);
-	/* 骚年们 请开始你们的表演 */
     /********* Begin *********/
     
     
