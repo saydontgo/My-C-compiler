@@ -15,13 +15,11 @@ void ErrorReporter::Report(ErrorLevel level, ErrorCode code, int line, int colum
 
 void ErrorReporter::PrintAll() {
     if (errors_.empty()) { return; }
-    
+
     std::cout << std::endl;
     for (const auto& error : errors_) {
-        if (error.level == ErrorLevel::Warning) { std::cout << "Warning "; }
-        else if (error.level == ErrorLevel::Error) { std::cout << "Error "; }
-        else { std::cout << "Fatal "; }
-        std::cout << "[line " << error.line << ", col " << error.column << "]: " << error.formattedMessage << std::endl;
+        std::string level = error.level == ErrorLevel::Warning ? "Warning " : "Error ";
+        std::cout << level << "[line " << error.line << ", col " << error.column << "]: " << error.formattedMessage << std::endl;
     }
     std::cout << std::endl;
 }

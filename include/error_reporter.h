@@ -1,13 +1,12 @@
 #pragma once
 #include "token.h"
 #include "lexical_analyzer.h"
-#include "exception.h"
+#include "exception.hpp"
 #include "symbol_table.h"
 
 enum class ErrorLevel {
     Warning,
-    Error,
-    Fatal   // like KeyboardInterrupt
+    Error
 };
 
 enum class ErrorCode {
@@ -15,8 +14,7 @@ enum class ErrorCode {
     UnterminatedString,
     InvalidEscapeSequence,
     InvalidNumberLiteral,
-    UnterminatedComment,
-    InternalError
+    UnterminatedComment
 };
 
 namespace ErrorMessages {
@@ -26,7 +24,6 @@ namespace ErrorMessages {
         { ErrorCode::InvalidEscapeSequence, "Invalid escape sequence: '\\{}'." },
         { ErrorCode::InvalidNumberLiteral, "Invalid number literal." },
         { ErrorCode::UnterminatedComment, "Unterminated comment block." },
-        { ErrorCode::InternalError, "Internal compiler error." },
     };
 }
 
