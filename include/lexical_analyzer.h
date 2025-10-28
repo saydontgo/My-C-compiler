@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <optional>
 #include "token.h"
 #include "exception.hpp"
 #include "error_reporter.h"

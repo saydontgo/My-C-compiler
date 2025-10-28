@@ -12,7 +12,7 @@ set(SOURCES
     src/error_reporter.cpp
     src/symbol_table.cpp
     src/token.cpp
-    src/exception.cpp
+    include/exception.hpp
     src/main.cpp
 )
 

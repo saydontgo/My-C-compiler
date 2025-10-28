@@ -18,8 +18,8 @@ void ErrorReporter::PrintAll() {
 
     std::cout << std::endl;
     for (const auto& error : errors_) {
-        std::string level = error.level == ErrorLevel::Warning ? "Warning " : "Error ";
-        std::cout << level << "[line " << error.line << ", col " << error.column << "]: " << error.formattedMessage << std::endl;
+        std::string level = error.level_ == ErrorLevel::Warning ? "Warning " : "Error ";
+        std::cout << level << "[line " << error.line_ << ", col " << error.column_ << "]: " << error.formattedMessage_ << std::endl;
     }
     std::cout << std::endl;
 }

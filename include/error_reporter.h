@@ -28,11 +28,11 @@ namespace ErrorMessages {
 }
 
 struct LexError {
-    ErrorLevel level;
-    ErrorCode code;
-    std::string formattedMessage;
-    int line;
-    int column;
+    ErrorLevel level_;
+    ErrorCode code_;
+    std::string formattedMessage_;
+    int line_;
+    int column_;
 };
 
 class ErrorReporter {
