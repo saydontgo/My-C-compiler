@@ -1,8 +1,7 @@
 #pragma once
-#include "token.h"
-#include "lexical_analyzer.h"
-#include "exception.hpp"
-#include "symbol_table.h"
+#include <iostream>
+#include <unordered_map>
+#include <vector>
 
 enum class ErrorLevel {
     Warning,

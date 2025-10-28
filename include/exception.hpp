@@ -1,8 +1,6 @@
 #pragma once
-#include "token.h"
-#include "lexical_analyzer.h"
-#include "error_reporter.h"
-#include "symbol_table.h"
+#include <iostream>
+#include <stdexcept>
 
 enum class Module {
     lexical_analyzer, symbol_table, token

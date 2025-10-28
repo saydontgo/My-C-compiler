@@ -1,7 +1,48 @@
 #include "symbol_table.h"
 
+void SymbolTable::RegisterKeyword(const std::string& keyword) {
+    table_.insert({keyword, {SymbolCategory::Keyword, keyword}});
+}
+
 SymbolTable::SymbolTable() {
     RegisterKeyword("auto");
+    RegisterKeyword("break");
+    RegisterKeyword("case");
+    RegisterKeyword("char");
+    RegisterKeyword("const");
+
+    RegisterKeyword("continue");
+    RegisterKeyword("default");
+    RegisterKeyword("do");
+    RegisterKeyword("double");
+    RegisterKeyword("else");
+
+    RegisterKeyword("enum");
+    RegisterKeyword("extern");
+    RegisterKeyword("float");
+    RegisterKeyword("for");
+    RegisterKeyword("goto");
+
+    RegisterKeyword("if");
+    RegisterKeyword("int");
+    RegisterKeyword("long");
+    RegisterKeyword("register");
+    RegisterKeyword("return");
+
+    RegisterKeyword("short");
+    RegisterKeyword("signed");
+    RegisterKeyword("sizeof");
+    RegisterKeyword("static");
+    RegisterKeyword("struct");
+
+    RegisterKeyword("switch");
+    RegisterKeyword("typedef");
+    RegisterKeyword("union");
+    RegisterKeyword("unsigned");
+    RegisterKeyword("void");
+
+    RegisterKeyword("volatile");
+    RegisterKeyword("while");
 }
 
 auto SymbolTable::Lookup(const std::string& symbol) const -> std::optional<SymbolEntry> {
