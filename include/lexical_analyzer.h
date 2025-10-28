@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <fstream>
 #include <sstream>
