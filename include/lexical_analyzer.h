@@ -16,7 +16,13 @@
 #include "symbol_table.h"
 
 enum class StateType {
-    Initial, Identifier, Integer, Float, Minus, MinusMinus, MinusEqual, Dereference, PlusPlus, PlusEqual, Plus, Finish
+    Initial, Identifier, Integer, Float, Minus, MinusMinus, MinusEqual, Dereference, PlusPlus, PlusEqual, LeftParenthesis, RightParenthesis, 
+
+    Comma, Period, Colon, Semicolon, QuestionMark, LeftBracket, RightBracket, LeftBrace, RightBrace, Tilde, DoubleQuotationMark, Reverse, ModSelf,
+    AndSelf, AndAnd, MultiplySelf, DivisionSelf, XorSelf, OrSelf, OrOr, LeftMoveEqual, LessEqual, EqualEqual, GreaterEqual, RightMoveEqual, 
+
+    Negate, Mod, And, Multiply, Division, Xor, Or, LeftArrow, LeftMove, Equal, RightArrow, RightMove,
+    Plus, Finish
 };
 
 enum class FlagType {

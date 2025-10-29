@@ -137,8 +137,41 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 
 					if (std::isalpha(ch)) { cur_state_ = StateType::Identifier; }
 					else if (std::isdigit(ch)) { cur_state_ = StateType::Integer; }
-					else if (ch == '-') { cur_state_ = StateType::Minus; }
-					else if (ch == '+') { cur_state_ = StateType::Plus; }
+
+					// follow the order of ASCII
+					switch (ch) {
+						case '!': cur_state_ = StateType::QuestionMark; break;
+						case '"': cur_state_ = StateType::DoubleQuotationMark; break;
+						case '%': cur_state_ = StateType::Mod; break;
+						case '&': cur_state_ = StateType::And; break;
+						// case '\'': cur_state_ = StateType::QuestionMark; break;
+
+						case '(': cur_state_ = StateType::LeftParenthesis; break;
+						case ')': cur_state_ = StateType::RightParenthesis; break;
+						case '*': cur_state_ = StateType::Multiply; break;
+						case '+': cur_state_ = StateType::Plus; break;
+						case ',': cur_state_ = StateType::Comma; break;
+
+						case '-': cur_state_ = StateType::Minus; break;
+						case '.': cur_state_ = StateType::Period; break;
+						case '/': cur_state_ = StateType::Division; break;
+						case ':': cur_state_ = StateType::Colon; break;
+						case ';': cur_state_ = StateType::Semicolon; break;
+
+						case '<': cur_state_ = StateType::LeftArrow; break;
+						case '=': cur_state_ = StateType::Equal; break;
+						case '>': cur_state_ = StateType::RightArrow; break;
+						case '?': cur_state_ = StateType::QuestionMark; break;
+						case '[': cur_state_ = StateType::LeftBracket; break;
+
+						case ']': cur_state_ = StateType::RightBracket; break;
+						case '^': cur_state_ = StateType::Xor; break;
+						case '{': cur_state_ = StateType::LeftBrace; break;
+						case '|': cur_state_ = StateType::And; break;
+						case '}': cur_state_ = StateType::RightBrace; break;
+
+						case '~': cur_state_ = StateType::Tilde; break;
+					}
 					}
 					break;
 				case StateType::Identifier : {
@@ -191,11 +224,163 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 				case StateType::MinusEqual :
 				case StateType::Dereference :
 				case StateType::PlusPlus :
-				case StateType::PlusEqual : {
+				case StateType::PlusEqual :
+				case StateType::LeftParenthesis :
+				case StateType::RightParenthesis :
+				case StateType::Comma :
+				case StateType::Period :
+				case StateType::Colon :
+				case StateType::Semicolon :
+				case StateType::QuestionMark :
+				case StateType::LeftBracket :
+				case StateType::RightBracket :
+				case StateType::LeftBrace :
+				case StateType::RightBrace :
+				case StateType::Tilde :
+				case StateType::DoubleQuotationMark :
+				case StateType::Reverse :
+				case StateType::ModSelf :
+				case StateType::AndSelf :
+				case StateType::AndAnd :
+				case StateType::MultiplySelf : 
+				case StateType::DivisionSelf :
+				case StateType::XorSelf :
+				case StateType::OrSelf :
+				case StateType::OrOr :
+				case StateType::LeftMoveEqual :
+				case StateType::LessEqual :
+				case StateType::EqualEqual :
+				case StateType::GreaterEqual :
+				case StateType::RightMoveEqual : {
 					cur_state_ = StateType::Finish;
 					token += Peek();
 					Advance();
 					}
+					break;
+				case StateType::Negate : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::Reverse; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::Mod : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::ModSelf; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::And : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::AndSelf; }
+					else if (ch == '&') { cur_state_ = StateType::AndAnd; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::Multiply : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::MultiplySelf; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::Division : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::DivisionSelf; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::Xor : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::XorSelf; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::Or : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::OrSelf; }
+					else if (ch == '|') { cur_state_ = StateType::OrOr; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::LeftArrow : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::LessEqual; }
+					else if (ch == '<') { cur_state_ = StateType::LeftMove; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::LeftMove : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::LeftMoveEqual; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::Equal : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::EqualEqual; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::RightArrow : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::GreaterEqual; }
+					else if (ch == '>') { cur_state_ = StateType::RightMove; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::RightMove : {
+					auto ch = PeekNext();
+
+					if (ch == '=') { cur_state_ = StateType::RightMoveEqual; }
+					else { cur_state_ = StateType::Finish; }
+
+					token += Peek();
+					Advance();
+					}
+					break;
 				case StateType::Plus : {
 					auto ch = PeekNext();
 					if (std::isdigit(ch)) { cur_state_ = StateType::Integer; }
