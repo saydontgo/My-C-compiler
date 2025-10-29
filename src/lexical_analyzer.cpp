@@ -140,11 +140,15 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 
 					// follow the order of ASCII
 					switch (ch) {
+						// ignore this two;
+						case '\n': cur_state_ = StateType::Initial; break;
+						case ' ': cur_state_ = StateType::Initial; break;
+
 						case '!': cur_state_ = StateType::QuestionMark; break;
 						case '"': cur_state_ = StateType::DoubleQuotationMark; break;
 						case '%': cur_state_ = StateType::Mod; break;
 						case '&': cur_state_ = StateType::And; break;
-						// case '\'': cur_state_ = StateType::QuestionMark; break;
+						// case '\'': cur_state_ = StateType::QuestionMark; break; TODO!!!
 
 						case '(': cur_state_ = StateType::LeftParenthesis; break;
 						case ')': cur_state_ = StateType::RightParenthesis; break;
@@ -171,6 +175,10 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 						case '}': cur_state_ = StateType::RightBrace; break;
 
 						case '~': cur_state_ = StateType::Tilde; break;
+
+						default :
+						// report error here!
+						break;
 					}
 					}
 					break;
@@ -251,7 +259,8 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 				case StateType::LessEqual :
 				case StateType::EqualEqual :
 				case StateType::GreaterEqual :
-				case StateType::RightMoveEqual : {
+				case StateType::RightMoveEqual :
+				case StateType::RightWrapperHalfComments : {
 					cur_state_ = StateType::Finish;
 					token += Peek();
 					Advance();
@@ -302,6 +311,8 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					auto ch = PeekNext();
 
 					if (ch == '=') { cur_state_ = StateType::DivisionSelf; }
+					else if (ch == '/') { cur_state_ = StateType::LineComments; }
+					else if (ch == '*') { cur_state_ = StateType::LeftWrapperComments; }
 					else { cur_state_ = StateType::Finish; }
 
 					token += Peek();
@@ -377,6 +388,33 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					if (ch == '=') { cur_state_ = StateType::RightMoveEqual; }
 					else { cur_state_ = StateType::Finish; }
 
+					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::LineComments : {
+					flag = FlagType::Comments;
+					char ch;
+					while((ch = PeekNext()) != '\n') {
+						token += Peek();
+						Advance();
+					}
+					token += Peek();
+					}
+					break;
+				case StateType::LeftWrapperComments : {
+					flag = FlagType::Comments;
+					char ch;
+					while((ch = PeekNext()) != '*') {
+						token += Peek();
+						if (ch == EOF) { /* report error here! */ }
+						Advance();
+					}
+					token += Peek();
+					}
+					cur_state_ = StateType::RightWrapperHalfComments;
+					break;
+				case StateType::RightWrapperComments : {
 					token += Peek();
 					Advance();
 					}
