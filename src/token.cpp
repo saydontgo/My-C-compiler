@@ -1,8 +1,8 @@
 #include "token.h"
 
 
-void TokenStream::PushBack(pos_id_t pos, lex_id_t id, std::string&& lexeme) {
-    tokens_.push_back(Token({pos, id, std::move(lexeme)}));
+void TokenStream::PushBack(lex_id_t id, std::string&& lexeme) {
+    tokens_.push_back(Token({pos_.fetch_add(1), id, std::move(lexeme)}));
 }
 
 void TokenStream::PrintAll() const {
