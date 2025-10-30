@@ -18,10 +18,10 @@
 enum class StateType {
     Initial, Identifier, Integer, Float, Minus, MinusMinus, MinusEqual, Dereference, PlusPlus, PlusEqual, LeftParenthesis, RightParenthesis, 
 
-    Comma, Period, Colon, Semicolon, QuestionMark, LeftBracket, RightBracket, LeftBrace, RightBrace, Tilde, DoubleQuotationMark, Reverse, ModSelf,
-    AndSelf, AndAnd, MultiplySelf, DivisionSelf, XorSelf, OrSelf, OrOr, LeftMoveEqual, LessEqual, EqualEqual, GreaterEqual, RightMoveEqual, RightWrapperComments,
+    Comma, Period, Colon, Semicolon, LeftBracket, RightBracket, LeftBrace, RightBrace, Tilde, Reverse, ModSelf,
+    AndSelf, AndAnd, MultiplySelf, DivisionSelf, XorSelf, OrSelf, OrOr, LeftMoveEqual, LessEqual, EqualEqual, GreaterEqual, RightMoveEqual, RightWrapperHalfComments, QuestionMark, 
 
-    Negate, Mod, And, Multiply, Division, Xor, Or, LeftArrow, LeftMove, Equal, RightArrow, RightMove, LineComments, LeftWrapperComments, RightWrapperHalfComments, 
+    DoubleQuotationMark, Mod, And, Multiply, Division, Xor, Or, LeftArrow, LeftMove, Equal, RightArrow, RightMove, LineComments, LeftWrapperComments, RightWrapperComments,
     Plus, Finish
 };
 

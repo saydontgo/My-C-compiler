@@ -133,7 +133,10 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 			switch (cur_state_) {
 				case StateType::Initial : {
 					char ch;
-					while ((ch = Peek()) != ' ') { Advance(); }
+					while ((ch = Peek()) == ' ' || ch == '\n' || ch == '\t') { 
+						if (pos_ >= static_cast<int>(source_.size() - 1)) { return tokens_;}
+						Advance(); 
+					}
 
 					if (std::isalpha(ch)) { cur_state_ = StateType::Identifier; }
 					else if (std::isdigit(ch)) { cur_state_ = StateType::Integer; }
@@ -141,8 +144,8 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					// follow the order of ASCII
 					switch (ch) {
 						// ignore this two;
-						case '\n': cur_state_ = StateType::Initial; break;
-						case ' ': cur_state_ = StateType::Initial; break;
+						case '\n': case ' ':
+						cur_state_ = StateType::Initial; break;
 
 						case '!': cur_state_ = StateType::QuestionMark; break;
 						case '"': cur_state_ = StateType::DoubleQuotationMark; break;
@@ -239,13 +242,11 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 				case StateType::Period :
 				case StateType::Colon :
 				case StateType::Semicolon :
-				case StateType::QuestionMark :
 				case StateType::LeftBracket :
 				case StateType::RightBracket :
 				case StateType::LeftBrace :
 				case StateType::RightBrace :
 				case StateType::Tilde :
-				case StateType::DoubleQuotationMark :
 				case StateType::Reverse :
 				case StateType::ModSelf :
 				case StateType::AndSelf :
@@ -266,7 +267,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					Advance();
 					}
 					break;
-				case StateType::Negate : {
+				case StateType::QuestionMark : {
 					auto ch = PeekNext();
 
 					if (ch == '=') { cur_state_ = StateType::Reverse; }
@@ -274,6 +275,27 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 
 					token += Peek();
 					Advance();
+					}
+					break;
+				case StateType::DoubleQuotationMark : {
+					auto ch = PeekNext();
+					std::string str_token;
+
+					tokens_->PushBack(C_keys_table_.find("\"")->second, "\"");
+					while (ch != '\"') {
+						// support multi lines, but in standard, a `\` should be added to the end of a str to indicate multi lines.
+						Advance();
+						// quotation is never wrapped. have to report it.
+						if (IsEnd()) { /* report error here! */ }
+						str_token += Peek();
+						ch  = PeekNext();
+					}
+					if (!str_token.empty()) { tokens_->PushBack(81, std::move(str_token)); }
+
+					token += PeekNext();
+					Advance();
+					Advance();
+					cur_state_ = StateType::Finish;
 					}
 					break;
 				case StateType::Mod : {
@@ -400,6 +422,8 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 						Advance();
 					}
 					token += Peek();
+					Advance();
+					cur_state_ = StateType::Finish;
 					}
 					break;
 				case StateType::LeftWrapperComments : {
@@ -407,7 +431,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					char ch;
 					while((ch = PeekNext()) != '*') {
 						token += Peek();
-						if (ch == EOF) { /* report error here! */ }
+						if (pos_ == static_cast<int>(source_.size() - 2)) { /* report error here! */ }
 						Advance();
 					}
 					token += Peek();
@@ -460,6 +484,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					// a token has been recognized, push it to TokenStream. 
 					tokens_->PushBack(id, std::move(token));
 					finish = true;
+					cur_state_ = StateType::Initial;
 					}
 					break;
 			}
@@ -475,7 +500,7 @@ void read_prog(std::string& prog)
 	while (scanf("%c", &c) != EOF) {
 		prog += c;
 	}
-
+	
 	prog += '\n';
 }
 /* 你可以添加其他函数 */
@@ -484,6 +509,24 @@ void Analysis()
 {
 	std::string prog = "";
 	// read_prog(prog);
+
+	// using files to read
+	std::ifstream ifs;
+	ifs.open("../test_data/test3_in", std::ios::in);
+	if (!ifs.is_open())
+    {
+        std::cout << "read fail." << std::endl;
+        // return -1;
+		std::abort();
+	}
+	char c;
+	while ((c = ifs.get()) != EOF)
+	{
+		prog += c;
+	}
+	prog += '\n';
+	// ------------------
+
     /********* Begin *********/
     auto lexer = LexicalAnalyzer(prog);
 	auto tokens = lexer.Tokenize();

@@ -22,5 +22,5 @@ public:
     void Print(int index) const;
 private:
     std::vector<Token> tokens_;
-    std::atomic<int> pos_{0};
+    std::atomic<int> pos_{1};
 };
