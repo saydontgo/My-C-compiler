@@ -260,10 +260,20 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 				case StateType::LessEqual :
 				case StateType::EqualEqual :
 				case StateType::GreaterEqual :
-				case StateType::RightMoveEqual :
-				case StateType::RightWrapperHalfComments : {
+				case StateType::RightMoveEqual : {
 					cur_state_ = StateType::Finish;
 					token += Peek();
+					Advance();
+					}
+					break;
+				case StateType::RightWrapperHalfComments : {
+					char ch;
+					while ((ch = PeekNext()) == '*') {
+						Advance(); 
+						token += Peek();
+					}
+					if (ch == '/') { cur_state_ = StateType::RightWrapperComments; }
+					else { cur_state_ = StateType::LeftWrapperComments; }
 					Advance();
 					}
 					break;
@@ -441,6 +451,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 				case StateType::RightWrapperComments : {
 					token += Peek();
 					Advance();
+					cur_state_ = StateType::Finish;
 					}
 					break;
 				case StateType::Plus : {
@@ -512,7 +523,7 @@ void Analysis()
 
 	// using files to read
 	std::ifstream ifs;
-	ifs.open("../test_data/test3_in", std::ios::in);
+	ifs.open("../test_data/test4_in", std::ios::in);
 	if (!ifs.is_open())
     {
         std::cout << "read fail." << std::endl;
