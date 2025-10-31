@@ -16,7 +16,7 @@ char ToEscape(const char ch) {
 		case '\'': return '\'';
 		case '\"': return '\"';
 		case '0' : return '\0';
-		default : return 'w';
+		default : return ch;
 	}
 }
 
@@ -118,6 +118,7 @@ LexicalAnalyzer::LexicalAnalyzer(std::string& source): source_(source), pos_(0),
 	C_keys_table_.insert({">>", 76});
 	C_keys_table_.insert({">>=", 77});
 	C_keys_table_.insert({"\"", 78});
+	C_keys_table_.insert({"\'", 82});
 }
 
 inline auto LexicalAnalyzer::Peek() const -> char {
@@ -169,7 +170,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 						case '"': cur_state_ = StateType::DoubleQuotationMark; break;
 						case '%': cur_state_ = StateType::Mod; break;
 						case '&': cur_state_ = StateType::And; break;
-						// case '\'': cur_state_ = StateType::QuestionMark; break; TODO!!!
+						case '\'': cur_state_ = StateType::SingleQuotationMark; break;
 
 						case '(': cur_state_ = StateType::LeftParenthesis; break;
 						case ')': cur_state_ = StateType::RightParenthesis; break;
@@ -303,6 +304,31 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 
 					token += Peek();
 					Advance();
+					}
+					break;
+				case StateType::SingleQuotationMark : {
+					auto ch = PeekNext();
+					tokens_->PushBack(C_keys_table_.find("\'")->second, "\'");
+					if (ch == '\'') { /* report error here! */}
+					Advance();
+					// quotation is not wrapped. have to report it.
+					if (IsEnd()) { /* report error here! */ }
+					auto tmp = Peek();
+					if (tmp == '\\') {
+						auto next = PeekNext();
+						tmp = ToEscape(next);
+						Advance();
+						if (IsEnd()) { /* report error here! */ }
+					}
+					
+					std::string tmp_token;
+					tmp_token += tmp;
+					tokens_->PushBack(80, std::move(tmp_token));
+					token += PeekNext();
+					std::cout << "token : " << token << std::endl;
+					Advance();
+					Advance();
+					cur_state_ = StateType::Finish;
 					}
 					break;
 				case StateType::DoubleQuotationMark : {

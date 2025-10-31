@@ -21,8 +21,8 @@ enum class StateType {
     Comma, Period, Colon, Semicolon, LeftBracket, RightBracket, LeftBrace, RightBrace, Tilde, Reverse, ModSelf,
     AndSelf, AndAnd, MultiplySelf, DivisionSelf, XorSelf, OrSelf, OrOr, LeftMoveEqual, LessEqual, EqualEqual, GreaterEqual, RightMoveEqual, RightWrapperHalfComments, QuestionMark, 
 
-    DoubleQuotationMark, Mod, And, Multiply, Division, Xor, Or, LeftArrow, LeftMove, Equal, RightArrow, RightMove, LineComments, LeftWrapperComments, RightWrapperComments,
-    Plus, Finish
+    SingleQuotationMark, DoubleQuotationMark, Mod, And, Multiply, Division, Xor, Or, LeftArrow, LeftMove, Equal, RightArrow, 
+    RightMove, LineComments, LeftWrapperComments, RightWrapperComments, Plus, Finish
 };
 
 enum class FlagType {
