@@ -49,6 +49,8 @@ private:
     std::unordered_map<std::string, lex_id_t> C_keys_table_;
 };
 
+char ToEscape(const char ch);
+
 void read_prog(std::string& prog);
 
 void Analysis();

@@ -2,6 +2,24 @@
 #include "lexical_analyzer.h"
 #include "symbol_table.h"
 
+// some utility functions
+
+// return relative escape character, only general escape characters are supported.
+char ToEscape(const char ch) {
+	switch (ch) {
+		case 'a' : return '\a';
+		case 'b' : return '\b';
+		case 'n' : return '\n';
+		case 't' : return '\t';
+		case 'v' : return '\v';
+		case '\\': return '\\';
+		case '\'': return '\'';
+		case '\"': return '\"';
+		case '0' : return '\0';
+		default : return 'w';
+	}
+}
+
 LexicalAnalyzer::LexicalAnalyzer(std::string& source): source_(source), pos_(0), cur_state_(StateType::Initial) {
 	reporter_ = std::make_shared<ErrorReporter>();
 	symbol_table_ = std::make_shared<SymbolTable>();
@@ -297,7 +315,15 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 						Advance();
 						// quotation is never wrapped. have to report it.
 						if (IsEnd()) { /* report error here! */ }
-						str_token += Peek();
+						auto tmp = Peek();
+						if (tmp == '\\') {
+							auto next = PeekNext();
+							tmp = ToEscape(next);
+							Advance();
+							if (IsEnd()) { /* report error here! */ }
+						}
+
+						str_token += tmp;
 						ch  = PeekNext();
 					}
 					if (!str_token.empty()) { tokens_->PushBack(81, std::move(str_token)); }
@@ -523,7 +549,7 @@ void Analysis()
 
 	// using files to read
 	std::ifstream ifs;
-	ifs.open("../test_data/test1_in", std::ios::in);
+	ifs.open("../test_data/mytest.in", std::ios::in);
 	if (!ifs.is_open())
     {
         std::cout << "read fail." << std::endl;
