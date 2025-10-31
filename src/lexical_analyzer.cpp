@@ -523,11 +523,10 @@ void Analysis()
 
 	// using files to read
 	std::ifstream ifs;
-	ifs.open("../test_data/test4_in", std::ios::in);
+	ifs.open("../test_data/test1_in", std::ios::in);
 	if (!ifs.is_open())
     {
         std::cout << "read fail." << std::endl;
-        // return -1;
 		std::abort();
 	}
 	char c;

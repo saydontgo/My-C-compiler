@@ -25,7 +25,7 @@ public:
         }
     }
 
-    // 辅助打印函数（可用于日志或 main 捕获时输出）
+    // output function
     std::string toString() const {
         std::string mod = "";
         switch (module_) {
@@ -36,6 +36,6 @@ public:
         return "[" + mod + "] LexerException : " + message_;
     }
 private:
-    std::string message_;  // 异常信息
+    std::string message_;
     Module module_;   // module
 };
