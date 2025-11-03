@@ -12,8 +12,9 @@ enum class ErrorCode {
     UnexpectedCharacter,
     UnterminatedString,
     InvalidEscapeSequence,
-    InvalidNumberLiteral,
-    UnterminatedComment
+    MissingTerminatingCharacter,
+    UnterminatedComment,
+    EmptyCharacterConstant
 };
 
 namespace ErrorMessages {
@@ -21,8 +22,9 @@ namespace ErrorMessages {
         { ErrorCode::UnexpectedCharacter, "Unexpected character: '{}'." },
         { ErrorCode::UnterminatedString, "Unterminated string literal." },
         { ErrorCode::InvalidEscapeSequence, "Invalid escape sequence: '\\{}'." },
-        { ErrorCode::InvalidNumberLiteral, "Invalid number literal." },
+        { ErrorCode::MissingTerminatingCharacter, "Missing terminating ' character." },
         { ErrorCode::UnterminatedComment, "Unterminated comment block." },
+        { ErrorCode::EmptyCharacterConstant, "Empty character constant." },
     };
 }
 

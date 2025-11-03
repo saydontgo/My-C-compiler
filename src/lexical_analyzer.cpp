@@ -1,5 +1,6 @@
 // C语言词法分析器
 #include "lexical_analyzer.h"
+#include "error_reporter.h"
 #include "symbol_table.h"
 
 // some utility functions
@@ -16,7 +17,7 @@ char ToEscape(const char ch) {
 		case '\'': return '\'';
 		case '\"': return '\"';
 		case '0' : return '\0';
-		default : return ch;
+		default : return ' ';
 	}
 }
 
@@ -140,6 +141,11 @@ inline auto LexicalAnalyzer::PeekNext() const -> char {
 }
 
 inline void LexicalAnalyzer::Advance() {
+	if (source_[pos_] != '\n') { col_++; }
+	else {
+		col_ = 1;
+		line_++;
+	}
 	++pos_;
 }
 
@@ -159,48 +165,52 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 
 					if (std::isalpha(ch)) { cur_state_ = StateType::Identifier; }
 					else if (std::isdigit(ch)) { cur_state_ = StateType::Integer; }
+					else {
+						// follow the order of ASCII
+						switch (ch) {
+							// ignore this two;
+							case '\n': case ' ':
+							cur_state_ = StateType::Initial; break;
 
-					// follow the order of ASCII
-					switch (ch) {
-						// ignore this two;
-						case '\n': case ' ':
-						cur_state_ = StateType::Initial; break;
+							case '!': cur_state_ = StateType::QuestionMark; break;
+							case '"': cur_state_ = StateType::DoubleQuotationMark; break;
+							case '%': cur_state_ = StateType::Mod; break;
+							case '&': cur_state_ = StateType::And; break;
+							case '\'': cur_state_ = StateType::SingleQuotationMark; break;
 
-						case '!': cur_state_ = StateType::QuestionMark; break;
-						case '"': cur_state_ = StateType::DoubleQuotationMark; break;
-						case '%': cur_state_ = StateType::Mod; break;
-						case '&': cur_state_ = StateType::And; break;
-						case '\'': cur_state_ = StateType::SingleQuotationMark; break;
+							case '(': cur_state_ = StateType::LeftParenthesis; break;
+							case ')': cur_state_ = StateType::RightParenthesis; break;
+							case '*': cur_state_ = StateType::Multiply; break;
+							case '+': cur_state_ = StateType::Plus; break;
+							case ',': cur_state_ = StateType::Comma; break;
 
-						case '(': cur_state_ = StateType::LeftParenthesis; break;
-						case ')': cur_state_ = StateType::RightParenthesis; break;
-						case '*': cur_state_ = StateType::Multiply; break;
-						case '+': cur_state_ = StateType::Plus; break;
-						case ',': cur_state_ = StateType::Comma; break;
+							case '-': cur_state_ = StateType::Minus; break;
+							case '.': cur_state_ = StateType::Period; break;
+							case '/': cur_state_ = StateType::Division; break;
+							case ':': cur_state_ = StateType::Colon; break;
+							case ';': cur_state_ = StateType::Semicolon; break;
 
-						case '-': cur_state_ = StateType::Minus; break;
-						case '.': cur_state_ = StateType::Period; break;
-						case '/': cur_state_ = StateType::Division; break;
-						case ':': cur_state_ = StateType::Colon; break;
-						case ';': cur_state_ = StateType::Semicolon; break;
+							case '<': cur_state_ = StateType::LeftArrow; break;
+							case '=': cur_state_ = StateType::Equal; break;
+							case '>': cur_state_ = StateType::RightArrow; break;
+							case '?': cur_state_ = StateType::QuestionMark; break;
+							case '[': cur_state_ = StateType::LeftBracket; break;
 
-						case '<': cur_state_ = StateType::LeftArrow; break;
-						case '=': cur_state_ = StateType::Equal; break;
-						case '>': cur_state_ = StateType::RightArrow; break;
-						case '?': cur_state_ = StateType::QuestionMark; break;
-						case '[': cur_state_ = StateType::LeftBracket; break;
+							case ']': cur_state_ = StateType::RightBracket; break;
+							case '^': cur_state_ = StateType::Xor; break;
+							case '{': cur_state_ = StateType::LeftBrace; break;
+							case '|': cur_state_ = StateType::And; break;
+							case '}': cur_state_ = StateType::RightBrace; break;
 
-						case ']': cur_state_ = StateType::RightBracket; break;
-						case '^': cur_state_ = StateType::Xor; break;
-						case '{': cur_state_ = StateType::LeftBrace; break;
-						case '|': cur_state_ = StateType::And; break;
-						case '}': cur_state_ = StateType::RightBrace; break;
+							case '~': cur_state_ = StateType::Tilde; break;
 
-						case '~': cur_state_ = StateType::Tilde; break;
-
-						default :
-						// report error here!
-						break;
+							default :
+							std::string extra = "";
+							extra += ch;
+							reporter_->Report(ErrorLevel::Error, ErrorCode::UnexpectedCharacter, line_, col_, extra);
+							Advance();
+							break;
+						}
 					}
 					}
 					break;
@@ -289,6 +299,11 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					char ch;
 					while ((ch = PeekNext()) == '*') {
 						Advance(); 
+						if (pos_ == static_cast<int>(source_.size() - 2)) {
+							tokens_->PushBack(81, std::move(token));
+							reporter_->Report(ErrorLevel::Error, ErrorCode::UnterminatedComment, line_, col_, std::move("no extra")); 
+							return tokens_;
+						}
 						token += Peek();
 					}
 					if (ch == '/') { cur_state_ = StateType::RightWrapperComments; }
@@ -309,23 +324,46 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 				case StateType::SingleQuotationMark : {
 					auto ch = PeekNext();
 					tokens_->PushBack(C_keys_table_.find("\'")->second, "\'");
-					if (ch == '\'') { /* report error here! */}
+					if (ch == '\'') {
+						reporter_->Report(ErrorLevel::Error, ErrorCode::EmptyCharacterConstant, line_, col_, std::move("no extra")); 
+						tokens_->PushBack(C_keys_table_.find("\'")->second, "\'");
+						Advance();
+						Advance();
+						cur_state_ = StateType::Initial;
+						break;
+					}
 					Advance();
 					// quotation is not wrapped. have to report it.
-					if (IsEnd()) { /* report error here! */ }
+					if (pos_ + 1 >= static_cast<int>(source_.size())) {
+						reporter_->Report(ErrorLevel::Error, ErrorCode::MissingTerminatingCharacter, line_, col_, std::move("no extra")); 
+						return tokens_;
+					}
 					auto tmp = Peek();
 					if (tmp == '\\') {
 						auto next = PeekNext();
 						tmp = ToEscape(next);
+						if (tmp == ' ') {
+							std::string extra = "";
+							extra += next;
+							reporter_->Report(ErrorLevel::Error, ErrorCode::InvalidEscapeSequence, line_, col_, extra); 
+						}
 						Advance();
-						if (IsEnd()) { /* report error here! */ }
+						if (pos_ + 1 >= static_cast<int>(source_.size())) {
+							reporter_->Report(ErrorLevel::Error, ErrorCode::MissingTerminatingCharacter, line_, col_, std::move("no extra")); 
+							return tokens_;
+						}
 					}
 					
 					std::string tmp_token;
 					tmp_token += tmp;
 					tokens_->PushBack(80, std::move(tmp_token));
+					if (PeekNext() != '\'') {
+						reporter_->Report(ErrorLevel::Error, ErrorCode::MissingTerminatingCharacter, line_, col_, std::move("no extra")); 
+						Advance();
+						cur_state_ = StateType::Initial;
+						break;
+					}
 					token += PeekNext();
-					std::cout << "token : " << token << std::endl;
 					Advance();
 					Advance();
 					cur_state_ = StateType::Finish;
@@ -340,16 +378,28 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 						// support multi lines, but in standard, a `\` should be added to the end of a str to indicate multi lines.
 						Advance();
 						// quotation is never wrapped. have to report it.
-						if (IsEnd()) { /* report error here! */ }
+						if (pos_ + 1 >= static_cast<int>(source_.size())) {
+							tokens_->PushBack(81, std::move(str_token));
+							reporter_->Report(ErrorLevel::Error, ErrorCode::UnterminatedString, line_, col_, std::move("no extra")); 
+							return tokens_;
+						}
 						auto tmp = Peek();
 						if (tmp == '\\') {
 							auto next = PeekNext();
 							tmp = ToEscape(next);
+							if (tmp == ' ') {
+								std::string extra = "";
+								extra += next;
+								reporter_->Report(ErrorLevel::Error, ErrorCode::InvalidEscapeSequence, line_, col_, extra); 
+							}
 							Advance();
-							if (IsEnd()) { /* report error here! */ }
+							if (pos_ + 1 >= static_cast<int>(source_.size())) {
+								tokens_->PushBack(81, std::move(str_token));
+								reporter_->Report(ErrorLevel::Error, ErrorCode::UnterminatedString, line_, col_, std::move("no extra")); 
+								return tokens_;
+							}
 						}
-
-						str_token += tmp;
+						str_token += tmp;	// if the string literal has an invalid escape sequence, it will convert it into a space
 						ch  = PeekNext();
 					}
 					if (!str_token.empty()) { tokens_->PushBack(81, std::move(str_token)); }
@@ -493,7 +543,11 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					char ch;
 					while((ch = PeekNext()) != '*') {
 						token += Peek();
-						if (pos_ == static_cast<int>(source_.size() - 2)) { /* report error here! */ }
+						if (pos_ == static_cast<int>(source_.size() - 2)) {
+							tokens_->PushBack(81, std::move(token));
+							reporter_->Report(ErrorLevel::Error, ErrorCode::UnterminatedComment, line_, col_, std::move("no extra")); 
+							return tokens_;
+						}
 						Advance();
 					}
 					token += Peek();
@@ -556,6 +610,10 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 	return tokens_;
 }
 
+void LexicalAnalyzer::PrintErrors() {
+	reporter_->PrintAll();
+}
+
 /* 不要修改这个标准输入函数 */
 void read_prog(std::string& prog)
 {
@@ -592,6 +650,7 @@ void Analysis()
     /********* Begin *********/
     auto lexer = LexicalAnalyzer(prog);
 	auto tokens = lexer.Tokenize();
+	lexer.PrintErrors();
     tokens->PrintAll();
     /********* End *********/
 	

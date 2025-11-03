@@ -39,6 +39,7 @@ public:
     inline auto PeekNext() const -> char;
     inline auto IsEnd() const -> bool;
     auto Tokenize() -> std::shared_ptr<const TokenStream>;
+    void PrintErrors();
 private:
     std::shared_ptr<ErrorReporter> reporter_;
     std::shared_ptr<SymbolTable> symbol_table_;
@@ -46,6 +47,8 @@ private:
     std::string source_;
     int pos_;
     StateType cur_state_;
+    int line_{1};
+    int col_{1};
     std::unordered_map<std::string, lex_id_t> C_keys_table_;
 };
 
