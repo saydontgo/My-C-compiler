@@ -2,4 +2,5 @@
 build/*
 .cache/*
 test
-test.cpp
+test_语法分析器.cpp
+test_LL1文法解析器.cpp

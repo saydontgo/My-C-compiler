@@ -53,7 +53,3 @@ private:
 };
 
 char ToEscape(const char ch);
-
-void read_prog(std::string& prog);
-
-void Analysis();
