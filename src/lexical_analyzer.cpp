@@ -120,6 +120,12 @@ LexicalAnalyzer::LexicalAnalyzer(std::string& source): source_(source), pos_(0),
 	C_keys_table_.insert({">>=", 77});
 	C_keys_table_.insert({"\"", 78});
 	C_keys_table_.insert({"\'", 82});
+
+	// newly added for LL(1) parser
+	C_keys_table_.insert({"NUM", 90});
+	C_keys_table_.insert({"ID", 91});
+	C_keys_table_.insert({"then", 92});
+	// newly added for LL(1) parser
 }
 
 inline auto LexicalAnalyzer::Peek() const -> char {

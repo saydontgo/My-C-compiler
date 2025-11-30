@@ -14,7 +14,12 @@ enum class ErrorCode {
     InvalidEscapeSequence,
     MissingTerminatingCharacter,
     UnterminatedComment,
-    EmptyCharacterConstant
+    EmptyCharacterConstant,
+
+    // newly added for LL(1) parser
+    MissingSymbol,
+    UnexpectedCharacterChinese
+    // newly added for LL(1) parser
 };
 
 namespace ErrorMessages {
@@ -25,6 +30,11 @@ namespace ErrorMessages {
         { ErrorCode::MissingTerminatingCharacter, "Missing terminating ' character." },
         { ErrorCode::UnterminatedComment, "Unterminated comment block." },
         { ErrorCode::EmptyCharacterConstant, "Empty character constant." },
+
+        // newly added for LL(1) parser
+        { ErrorCode::MissingSymbol, "缺少\"{}\"" },
+        { ErrorCode::UnexpectedCharacterChinese, "多余\"{}\"" },
+        // newly added for LL(1) parser
     };
 }
 
@@ -41,6 +51,8 @@ public:
     void Report(ErrorLevel level, ErrorCode code, int line, int column, const std::string& extra); // push_back method for ErrorReporter
 
     void PrintAll();
+
+    void PrintLL1();
 private:
     std::vector<LexError> errors_;
 };

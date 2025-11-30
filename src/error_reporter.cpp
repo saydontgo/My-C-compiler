@@ -23,3 +23,16 @@ void ErrorReporter::PrintAll() {
     }
     std::cout << std::endl;
 }
+
+// newly added for LL(1) parser
+void ErrorReporter::PrintLL1() {
+    if (errors_.empty()) { return; }
+
+    std::cout << std::endl;
+    for (const auto& error : errors_) {
+        std::string level = error.level_ == ErrorLevel::Warning ? "Warning " : "Error ";
+        std::cout << "语法错误,第" << error.line_ << "行," << error.formattedMessage_ << std::endl;
+    }
+    std::cout << std::endl;
+}
+// newly added for LL(1) parser

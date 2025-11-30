@@ -43,6 +43,12 @@ SymbolTable::SymbolTable() {
 
     RegisterKeyword("volatile");
     RegisterKeyword("while");
+
+    // newly added for LL(1) parser
+    RegisterKeyword("ID");
+    RegisterKeyword("NUM");
+    RegisterKeyword("then");
+    // newly added for LL(1) parser
 }
 
 auto SymbolTable::Lookup(const std::string& symbol) const -> std::optional<SymbolEntry> {
