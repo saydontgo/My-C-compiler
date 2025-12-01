@@ -1,12 +1,23 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
+#include "token.h"
+enum class NonTerminalType {
+    threshold = 100,
+    program, stmt, compoundstmt, stmts, ifstmt, whilestmt, assgstmt, boolexpr, boolop, 
+    arithexpr, arithexprprime, multexpr, multexprprime, simpleexpr, 
+    end
+};
 class LL1Analyzer {
 public:
-    explicit LL1Analyzer(std::string grammar);
-    auto BuildTable() -> std::unordered_map<int, std::unordered_map<int, std::vector<std::string>*>>;
+    explicit LL1Analyzer(const std::unordered_map<std::string, lex_id_t>& key_table);
+    auto BuildTable() -> std::unordered_map<NonTerminalType, std::unordered_map<lex_id_t, std::vector<int>>>;
 
 private:
-    std::unordered_map<int, std::vector<int>> first_;
-    std::unordered_map<int, std::vector<int>> follow_;
+    std::unordered_map<NonTerminalType, std::vector<lex_id_t>> first_;
+    std::unordered_map<NonTerminalType, std::vector<lex_id_t>> follow_;
+    std::vector<std::vector<std::vector<int>>> production_;
+
+    void BuildTableHelper(std::unordered_map<lex_id_t, std::vector<int>>& res, const std::pair<NonTerminalType, std::vector<lex_id_t>>& row, int index);
 };

@@ -620,3 +620,6 @@ void LexicalAnalyzer::PrintErrors() {
 	reporter_->PrintAll();
 }
 
+auto LexicalAnalyzer::GetTable() const -> const std::unordered_map<std::string, lex_id_t>& {
+	return C_keys_table_;
+}

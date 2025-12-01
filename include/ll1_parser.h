@@ -18,7 +18,7 @@
 
 class LL1Parser {
 public:
-    explicit LL1Parser(std::string grammar);
+    explicit LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table);
     LL1Parser() = delete;
     LL1Parser(const LL1Parser& other) = delete;
     LL1Parser& operator=(const LL1Parser&) = delete;
@@ -27,8 +27,10 @@ public:
     void PrintErrors();
 
 private:
-    std::shared_ptr<LL1Analyzer> Analyzer_;
     std::shared_ptr<ErrorReporter> reporter_;
     std::shared_ptr<ParseTreeNode> root_;
-    std::unordered_map<int, std::unordered_map<int, std::vector<std::string>*>> predict_table_;
+    std::unordered_map<NonTerminalType, std::unordered_map<lex_id_t, std::vector<int>>> predict_table_;
+
+    // name table, only for debug and output purposes
+    std::unordered_map<int, std::string> name_table_;
 };

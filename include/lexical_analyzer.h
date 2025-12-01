@@ -39,6 +39,7 @@ public:
     inline auto PeekNext() const -> char;
     inline auto IsEnd() const -> bool;
     auto Tokenize() -> std::shared_ptr<const TokenStream>;
+    auto GetTable() const -> const std::unordered_map<std::string, lex_id_t>&;
     void PrintErrors();
 private:
     std::shared_ptr<ErrorReporter> reporter_;
