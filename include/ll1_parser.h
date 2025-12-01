@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -25,6 +26,12 @@ public:
     LL1Parser(LL1Parser&& other);
     auto ParseTokens(const TokenStream&) -> std::shared_ptr<const ParseTreeNode>;
     void PrintErrors();
+
+    // for debug and output purposes
+    auto GetName(int index) -> const std::string {
+        assert(name_table_.find(index) != name_table_.end());
+        return name_table_[index];
+    }
 
 private:
     std::shared_ptr<ErrorReporter> reporter_;

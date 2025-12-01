@@ -1,5 +1,6 @@
 #include "lexical_analyzer.h"
-
+#include "ll1_parser.h"
+#include "ll1_analyzer.h"
 /* 不要修改这个标准输入函数 */
 void read_prog(std::string& prog)
 {
@@ -42,8 +43,33 @@ void Analysis()
 	
 }
 
+void test_ll1Analyzer() {
+	std::string prog = "";
+	LexicalAnalyzer lexer(prog);
+	LL1Analyzer ana(lexer.GetTable());
+	auto res = ana.BuildTable();
+	LL1Parser parser(lexer.GetTable());
+
+	ana.PrintProds();
+	for (int i = 101; i < 115; i++) {
+		auto nonterminal = parser.GetName(i);
+		std::cout << nonterminal << ": " << std::endl;
+		auto prods = res[static_cast<NonTerminalType>(i)];
+		for (const auto& prod : prods) {
+			std::cout << "\t" << parser.GetName(prod.first) << ": " << std::endl;
+			std::cout << "\t\t" << nonterminal << " -> ";
+			for (const auto& id : prod.second) {
+				std::cout << parser.GetName(id) << " ";
+			}
+			std::cout << std::endl;
+		}
+		std::cout << std::endl;
+	}
+}
+
 int main()
 {
-	Analysis(); 
+	// Analysis(); 
+	test_ll1Analyzer();
  	return 0;
 }

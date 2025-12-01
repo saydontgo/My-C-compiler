@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -13,6 +14,7 @@ class LL1Analyzer {
 public:
     explicit LL1Analyzer(const std::unordered_map<std::string, lex_id_t>& key_table);
     auto BuildTable() -> std::unordered_map<NonTerminalType, std::unordered_map<lex_id_t, std::vector<int>>>;
+    void PrintProds();
 
 private:
     std::unordered_map<NonTerminalType, std::vector<lex_id_t>> first_;

@@ -13,6 +13,9 @@ set(SOURCES
     src/symbol_table.cpp
     src/token.cpp
     include/exception.hpp
+    src/ll1_analyzer.cpp
+    src/parse_tree.cpp
+    src/ll1_parser.cpp
     src/main.cpp
 )
 

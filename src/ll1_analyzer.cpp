@@ -71,7 +71,7 @@ LL1Analyzer::LL1Analyzer(const std::unordered_map<std::string, lex_id_t>& key_ta
     production_.push_back(std::vector<std::vector<int>>({{static_cast<int>(NonTerminalType::ifstmt)}, {static_cast<int>(NonTerminalType::whilestmt)},
     {static_cast<int>(NonTerminalType::assgstmt)}, {static_cast<int>(NonTerminalType::compoundstmt)}}));
     production_.push_back(std::vector<std::vector<int>>({{key_table.find("{")->second, static_cast<int>(NonTerminalType::compoundstmt), key_table.find("}")->second}}));
-    production_.push_back(std::vector<std::vector<int>>({{static_cast<int>(NonTerminalType::stmt)}, {static_cast<int>(NonTerminalType::stmts)}, {static_cast<int>(NonTerminalType::end)}}));
+    production_.push_back(std::vector<std::vector<int>>({{static_cast<int>(NonTerminalType::stmt), static_cast<int>(NonTerminalType::stmts)}, {static_cast<int>(NonTerminalType::end)}}));
     production_.push_back(std::vector<std::vector<int>>({{key_table.find("if")->second, key_table.find("(")->second, 
         static_cast<int>(NonTerminalType::boolexpr), key_table.find(")")->second, key_table.find("then")->second, static_cast<int>(NonTerminalType::stmt), 
         key_table.find("else")->second, static_cast<int>(NonTerminalType::stmt)}}));
@@ -83,12 +83,12 @@ LL1Analyzer::LL1Analyzer(const std::unordered_map<std::string, lex_id_t>& key_ta
     production_.push_back(std::vector<std::vector<int>>({{key_table.find("<")->second}, {key_table.find(">")->second},
     {key_table.find("<=")->second}, {key_table.find(">=")->second}, {key_table.find("==")->second}}));
     production_.push_back(std::vector<std::vector<int>>({{static_cast<int>(NonTerminalType::multexpr), static_cast<int>(NonTerminalType::arithexprprime)}}));
-    production_.push_back(std::vector<std::vector<int>>({{key_table.find("+")->second, static_cast<int>(NonTerminalType::multexpr), static_cast<int>(NonTerminalType::arithexprprime)}}));
-    production_.push_back(std::vector<std::vector<int>>({{key_table.find("-")->second, static_cast<int>(NonTerminalType::multexpr), static_cast<int>(NonTerminalType::arithexprprime)}, 
+    production_.push_back(std::vector<std::vector<int>>({{key_table.find("+")->second, static_cast<int>(NonTerminalType::multexpr), static_cast<int>(NonTerminalType::arithexprprime)}, 
+    {key_table.find("-")->second, static_cast<int>(NonTerminalType::multexpr), static_cast<int>(NonTerminalType::arithexprprime)}, 
     {static_cast<int>(NonTerminalType::end)}}));
     production_.push_back(std::vector<std::vector<int>>({{static_cast<int>(NonTerminalType::simpleexpr), static_cast<int>(NonTerminalType::multexprprime)}}));
-    production_.push_back(std::vector<std::vector<int>>({{key_table.find("*")->second, static_cast<int>(NonTerminalType::simpleexpr), static_cast<int>(NonTerminalType::multexprprime)}}));
-    production_.push_back(std::vector<std::vector<int>>({{key_table.find("/")->second, static_cast<int>(NonTerminalType::simpleexpr), static_cast<int>(NonTerminalType::multexprprime)}, 
+    production_.push_back(std::vector<std::vector<int>>({{key_table.find("/")->second, static_cast<int>(NonTerminalType::simpleexpr), static_cast<int>(NonTerminalType::multexprprime)},
+    {key_table.find("*")->second, static_cast<int>(NonTerminalType::simpleexpr), static_cast<int>(NonTerminalType::multexprprime)}, 
     {static_cast<int>(NonTerminalType::end)}}));
     production_.push_back(std::vector<std::vector<int>>({{key_table.find("ID")->second}, {key_table.find("NUM")->second},
     {key_table.find("(")->second, static_cast<int>(NonTerminalType::arithexpr), key_table.find(")")->second}}));
@@ -151,4 +151,21 @@ void LL1Analyzer::BuildTableHelper(std::unordered_map<lex_id_t, std::vector<int>
                 }
             }
         }
+}
+
+void LL1Analyzer::PrintProds() {
+    for (auto i = NonTerminalType::threshold; i != NonTerminalType::end;) {
+        if (i == NonTerminalType::threshold) {
+            i = static_cast<NonTerminalType>(static_cast<int>(i) + 1);
+        }
+        std::cout << static_cast<int>(i) << ": " << std::endl;
+        for (const auto& prod : production_[static_cast<int>(i) - 101]) {
+            std::cout << static_cast<int>(i) << " -> ";
+            for (const auto& id : prod) {
+                std::cout << id << " ";
+            }
+            std::cout << std::endl;
+        }
+        i = static_cast<NonTerminalType>(static_cast<int>(i) + 1);
+    }
 }
