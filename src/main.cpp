@@ -50,7 +50,7 @@ void test_ll1Analyzer() {
 	auto res = ana.BuildTable();
 	LL1Parser parser(lexer.GetTable());
 
-	ana.PrintProds();
+	// ana.PrintProds();
 	for (int i = 101; i < 115; i++) {
 		auto nonterminal = parser.GetName(i);
 		std::cout << nonterminal << ": " << std::endl;
@@ -59,7 +59,11 @@ void test_ll1Analyzer() {
 			std::cout << "\t" << parser.GetName(prod.first) << ": " << std::endl;
 			std::cout << "\t\t" << nonterminal << " -> ";
 			for (const auto& id : prod.second) {
-				std::cout << parser.GetName(id) << " ";
+				std::string str = "eplison";
+				if (id != static_cast<int>(NonTerminalType::end)) {
+					str = parser.GetName(id);
+				}
+				std::cout << str << " ";
 			}
 			std::cout << std::endl;
 		}

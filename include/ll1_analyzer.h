@@ -21,5 +21,5 @@ private:
     std::unordered_map<NonTerminalType, std::vector<lex_id_t>> follow_;
     std::vector<std::vector<std::vector<int>>> production_;
 
-    void BuildTableHelper(std::unordered_map<lex_id_t, std::vector<int>>& res, const std::pair<NonTerminalType, std::vector<lex_id_t>>& row, int index);
+    void BuildTableHelper(std::unordered_map<lex_id_t, std::vector<int>>& res, const std::pair<NonTerminalType, std::vector<lex_id_t>>& row);
 };

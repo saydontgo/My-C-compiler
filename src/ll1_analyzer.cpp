@@ -70,13 +70,13 @@ LL1Analyzer::LL1Analyzer(const std::unordered_map<std::string, lex_id_t>& key_ta
     production_.push_back(std::vector<std::vector<int>>({{static_cast<int>(NonTerminalType::compoundstmt)}}));
     production_.push_back(std::vector<std::vector<int>>({{static_cast<int>(NonTerminalType::ifstmt)}, {static_cast<int>(NonTerminalType::whilestmt)},
     {static_cast<int>(NonTerminalType::assgstmt)}, {static_cast<int>(NonTerminalType::compoundstmt)}}));
-    production_.push_back(std::vector<std::vector<int>>({{key_table.find("{")->second, static_cast<int>(NonTerminalType::compoundstmt), key_table.find("}")->second}}));
+    production_.push_back(std::vector<std::vector<int>>({{key_table.find("{")->second, static_cast<int>(NonTerminalType::stmts), key_table.find("}")->second}}));
     production_.push_back(std::vector<std::vector<int>>({{static_cast<int>(NonTerminalType::stmt), static_cast<int>(NonTerminalType::stmts)}, {static_cast<int>(NonTerminalType::end)}}));
     production_.push_back(std::vector<std::vector<int>>({{key_table.find("if")->second, key_table.find("(")->second, 
         static_cast<int>(NonTerminalType::boolexpr), key_table.find(")")->second, key_table.find("then")->second, static_cast<int>(NonTerminalType::stmt), 
         key_table.find("else")->second, static_cast<int>(NonTerminalType::stmt)}}));
     production_.push_back(std::vector<std::vector<int>>({{key_table.find("while")->second, key_table.find("(")->second, 
-        static_cast<int>(NonTerminalType::stmt), key_table.find(")")->second, static_cast<int>(NonTerminalType::stmt)}}));
+        static_cast<int>(NonTerminalType::boolexpr), key_table.find(")")->second, static_cast<int>(NonTerminalType::stmt)}}));
     production_.push_back(std::vector<std::vector<int>>({{key_table.find("ID")->second, key_table.find("=")->second, 
         static_cast<int>(NonTerminalType::arithexpr), key_table.find(";")->second}}));
     production_.push_back(std::vector<std::vector<int>>({{static_cast<int>(NonTerminalType::arithexpr), static_cast<int>(NonTerminalType::boolop), static_cast<int>(NonTerminalType::arithexpr)}}));
@@ -98,21 +98,20 @@ LL1Analyzer::LL1Analyzer(const std::unordered_map<std::string, lex_id_t>& key_ta
 
 auto LL1Analyzer::BuildTable() -> std::unordered_map<NonTerminalType, std::unordered_map<lex_id_t, std::vector<int>>> {
     std::unordered_map<NonTerminalType, std::unordered_map<lex_id_t, std::vector<int>>> res;
-    int index = 0;
     for (const auto& row : first_) {
         std::unordered_map<lex_id_t, std::vector<int>> tmp;
-        BuildTableHelper(tmp, row, index);
+        BuildTableHelper(tmp, row);
         auto iter_follow = follow_.find(row.first);
         if (iter_follow != follow_.end()) {
-            BuildTableHelper(tmp, *iter_follow, index);
+            BuildTableHelper(tmp, *iter_follow);
         }
-        index++;
         res.insert({row.first, tmp});
     }
     return res;
 }
 
-void LL1Analyzer::BuildTableHelper(std::unordered_map<lex_id_t, std::vector<int>>& res, const std::pair<NonTerminalType, std::vector<lex_id_t>>& row, int index) {
+void LL1Analyzer::BuildTableHelper(std::unordered_map<lex_id_t, std::vector<int>>& res, const std::pair<NonTerminalType, std::vector<lex_id_t>>& row) {
+    auto index = static_cast<int>(row.first) - static_cast<int>(NonTerminalType::threshold) - 1;
     auto productions = production_[index];
     for (const auto& id : row.second) {
             for (const auto& prod : productions) {
@@ -141,7 +140,7 @@ void LL1Analyzer::BuildTableHelper(std::unordered_map<lex_id_t, std::vector<int>
                         for (const auto& ter : it->second) {
                             if (ter == id) {
                                 auto check = res.insert({id, prod});
-                                if (!check.second) { throw "LL1 rules conflict!\n"; }
+                                if (!check.second) { throw std::runtime_error("ll1 rules conflict!\n"); }
                                 flag = true;
                                 break;
                             }
