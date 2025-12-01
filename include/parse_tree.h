@@ -3,8 +3,8 @@
 #include <string>
 class ParseTreeNode {
 public:
-    void PrintTree();
-    void PrintOutput();
+    void PrintTree() const;
+    void PrintOutput() const;
 
 private:
     std::vector<std::shared_ptr<ParseTreeNode>> children_;

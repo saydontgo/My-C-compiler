@@ -24,3 +24,11 @@ LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table)
     name_table_.insert({static_cast<int>(NonTerminalType::multexprprime), std::string("multexprprime")});
     name_table_.insert({static_cast<int>(NonTerminalType::simpleexpr), std::string("simpleexpr")});
 }
+
+auto LL1Parser::ParseTokens(std::shared_ptr<const TokenStream>) -> std::shared_ptr<ParseTreeNode> {
+    
+}
+
+void LL1Parser::PrintErrors() const {
+    reporter_->PrintLL1();
+}

@@ -14,6 +14,8 @@ class LL1Analyzer {
 public:
     explicit LL1Analyzer(const std::unordered_map<std::string, lex_id_t>& key_table);
     auto BuildTable() -> std::unordered_map<NonTerminalType, std::unordered_map<lex_id_t, std::vector<int>>>;
+    
+    // for debug and output purposes, print all the productions 
     void PrintProds();
 
 private:

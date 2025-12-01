@@ -24,8 +24,8 @@ public:
     LL1Parser(const LL1Parser& other) = delete;
     LL1Parser& operator=(const LL1Parser&) = delete;
     LL1Parser(LL1Parser&& other);
-    auto ParseTokens(const TokenStream&) -> std::shared_ptr<const ParseTreeNode>;
-    void PrintErrors();
+    auto ParseTokens(std::shared_ptr<const TokenStream>) -> std::shared_ptr<ParseTreeNode>;
+    void PrintErrors() const;
 
     // for debug and output purposes
     auto GetName(int index) -> const std::string {

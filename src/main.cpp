@@ -39,6 +39,10 @@ void Analysis()
 	auto tokens = lexer.Tokenize();
 	lexer.PrintErrors();
     tokens->PrintAll();
+	LL1Parser parser(lexer.GetTable());
+	auto trees = parser.ParseTokens(tokens);
+	parser.PrintErrors();
+	trees->PrintOutput();
     /********* End *********/
 	
 }
@@ -50,8 +54,8 @@ void test_ll1Analyzer() {
 	auto res = ana.BuildTable();
 	LL1Parser parser(lexer.GetTable());
 
-	// ana.PrintProds();
-	for (int i = 101; i < 115; i++) {
+	ana.PrintProds();
+	for (int i = static_cast<int>(NonTerminalType::threshold) + 1; i < static_cast<int>(NonTerminalType::end); i++) {
 		auto nonterminal = parser.GetName(i);
 		std::cout << nonterminal << ": " << std::endl;
 		auto prods = res[static_cast<NonTerminalType>(i)];
@@ -73,7 +77,7 @@ void test_ll1Analyzer() {
 
 int main()
 {
-	// Analysis(); 
-	test_ll1Analyzer();
+	Analysis(); 
+	// test_ll1Analyzer();
  	return 0;
 }

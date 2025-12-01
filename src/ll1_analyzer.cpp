@@ -152,19 +152,16 @@ void LL1Analyzer::BuildTableHelper(std::unordered_map<lex_id_t, std::vector<int>
         }
 }
 
+// print the productions
 void LL1Analyzer::PrintProds() {
-    for (auto i = NonTerminalType::threshold; i != NonTerminalType::end;) {
-        if (i == NonTerminalType::threshold) {
-            i = static_cast<NonTerminalType>(static_cast<int>(i) + 1);
-        }
-        std::cout << static_cast<int>(i) << ": " << std::endl;
-        for (const auto& prod : production_[static_cast<int>(i) - 101]) {
-            std::cout << static_cast<int>(i) << " -> ";
+    for (auto i = static_cast<int>(NonTerminalType::threshold) + 1; i < static_cast<int>(NonTerminalType::end); i++) {
+        std::cout << i << ": " << std::endl;
+        for (const auto& prod : production_[i - static_cast<int>(NonTerminalType::threshold) - 1]) {
+            std::cout << i << " -> ";
             for (const auto& id : prod) {
                 std::cout << id << " ";
             }
             std::cout << std::endl;
         }
-        i = static_cast<NonTerminalType>(static_cast<int>(i) + 1);
     }
 }
