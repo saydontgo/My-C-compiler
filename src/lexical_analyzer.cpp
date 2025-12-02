@@ -306,7 +306,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					while ((ch = PeekNext()) == '*') {
 						Advance(); 
 						if (pos_ == static_cast<int>(source_.size() - 2)) {
-							tokens_->PushBack(81, std::move(token));
+							tokens_->PushBack(81, std::move(token), line_, col_);
 							reporter_->Report(ErrorLevel::Error, ErrorCode::UnterminatedComment, line_, col_, std::move("no extra")); 
 							return tokens_;
 						}
@@ -329,10 +329,10 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					break;
 				case StateType::SingleQuotationMark : {
 					auto ch = PeekNext();
-					tokens_->PushBack(C_keys_table_.find("\'")->second, "\'");
+					tokens_->PushBack(C_keys_table_.find("\'")->second, "\'", line_, col_);
 					if (ch == '\'') {
 						reporter_->Report(ErrorLevel::Error, ErrorCode::EmptyCharacterConstant, line_, col_, std::move("no extra")); 
-						tokens_->PushBack(C_keys_table_.find("\'")->second, "\'");
+						tokens_->PushBack(C_keys_table_.find("\'")->second, "\'", line_, col_);
 						Advance();
 						Advance();
 						cur_state_ = StateType::Initial;
@@ -362,7 +362,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					
 					std::string tmp_token;
 					tmp_token += tmp;
-					tokens_->PushBack(80, std::move(tmp_token));
+					tokens_->PushBack(80, std::move(tmp_token), line_, col_);
 					if (PeekNext() != '\'') {
 						reporter_->Report(ErrorLevel::Error, ErrorCode::MissingTerminatingCharacter, line_, col_, std::move("no extra")); 
 						Advance();
@@ -379,13 +379,13 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					auto ch = PeekNext();
 					std::string str_token;
 
-					tokens_->PushBack(C_keys_table_.find("\"")->second, "\"");
+					tokens_->PushBack(C_keys_table_.find("\"")->second, "\"", line_, col_);
 					while (ch != '\"') {
 						// support multi lines, but in standard, a `\` should be added to the end of a str to indicate multi lines.
 						Advance();
 						// quotation is never wrapped. have to report it.
 						if (pos_ + 1 >= static_cast<int>(source_.size())) {
-							tokens_->PushBack(81, std::move(str_token));
+							tokens_->PushBack(81, std::move(str_token), line_, col_);
 							reporter_->Report(ErrorLevel::Error, ErrorCode::UnterminatedString, line_, col_, std::move("no extra")); 
 							return tokens_;
 						}
@@ -400,7 +400,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 							}
 							Advance();
 							if (pos_ + 1 >= static_cast<int>(source_.size())) {
-								tokens_->PushBack(81, std::move(str_token));
+								tokens_->PushBack(81, std::move(str_token), line_, col_);
 								reporter_->Report(ErrorLevel::Error, ErrorCode::UnterminatedString, line_, col_, std::move("no extra")); 
 								return tokens_;
 							}
@@ -408,7 +408,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 						str_token += tmp;	// if the string literal has an invalid escape sequence, it will convert it into a space
 						ch  = PeekNext();
 					}
-					if (!str_token.empty()) { tokens_->PushBack(81, std::move(str_token)); }
+					if (!str_token.empty()) { tokens_->PushBack(81, std::move(str_token), line_, col_); }
 
 					token += PeekNext();
 					Advance();
@@ -550,7 +550,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 					while((ch = PeekNext()) != '*') {
 						token += Peek();
 						if (pos_ == static_cast<int>(source_.size() - 2)) {
-							tokens_->PushBack(81, std::move(token));
+							tokens_->PushBack(81, std::move(token), line_, col_);
 							reporter_->Report(ErrorLevel::Error, ErrorCode::UnterminatedComment, line_, col_, std::move("no extra")); 
 							return tokens_;
 						}
@@ -605,7 +605,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 							break;
 					}
 					// a token has been recognized, push it to TokenStream. 
-					tokens_->PushBack(id, std::move(token));
+					tokens_->PushBack(id, std::move(token), line_, col_);
 					finish = true;
 					cur_state_ = StateType::Initial;
 					}

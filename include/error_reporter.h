@@ -52,7 +52,9 @@ public:
 
     void PrintAll();
 
+    // newly added for LL(1) parser
     void PrintLL1();
+    // newly added for LL(1) parser
 private:
     std::vector<LexError> errors_;
 };

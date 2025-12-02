@@ -42,7 +42,7 @@ void Analysis()
 	LL1Parser parser(lexer.GetTable());
 	auto trees = parser.ParseTokens(tokens);
 	parser.PrintErrors();
-	trees->PrintOutput();
+	// trees->PrintOutput();
     /********* End *********/
 	
 }
@@ -77,7 +77,7 @@ void test_ll1Analyzer() {
 
 int main()
 {
-	Analysis(); 
-	// test_ll1Analyzer();
+	// Analysis(); 
+	test_ll1Analyzer();
  	return 0;
 }
