@@ -15,23 +15,23 @@ void read_prog(std::string& prog)
 
 void Analysis()
 {
-	std::string prog = "{ while ( ID == NUM ) { ID = NUM } }";
+	std::string prog = "";
 	// read_prog(prog);
 
 	// using files to read
-	// std::ifstream ifs;
-	// ifs.open("../test_data/mytest.in", std::ios::in);
-	// if (!ifs.is_open())
-    // {
-    //     std::cout << "read fail." << std::endl;
-	// 	std::abort();
-	// }
-	// char c;
-	// while ((c = ifs.get()) != EOF)
-	// {
-	// 	prog += c;
-	// }
-	// prog += '\n';
+	std::ifstream ifs;
+	ifs.open("../test_data/project2/test4.in", std::ios::in);
+	if (!ifs.is_open())
+    {
+        std::cout << "read fail." << std::endl;
+		std::abort();
+	}
+	char c;
+	while ((c = ifs.get()) != EOF)
+	{
+		prog += c;
+	}
+	prog += '\n';
 	// ------------------
 
     /********* Begin *********/
@@ -42,7 +42,7 @@ void Analysis()
 	LL1Parser parser(lexer.GetTable());
 	auto trees = parser.ParseTokens(tokens);
 	parser.PrintErrors();
-	// trees->PrintOutput();
+	trees->PrintOutput();
     /********* End *********/
 	
 }
@@ -77,7 +77,7 @@ void test_ll1Analyzer() {
 
 int main()
 {
-	// Analysis(); 
-	test_ll1Analyzer();
+	Analysis(); 
+	// test_ll1Analyzer();
  	return 0;
 }

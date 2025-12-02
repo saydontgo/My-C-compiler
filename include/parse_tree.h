@@ -1,13 +1,19 @@
 #include <memory>
-#include <vector>
+#include <deque>
 #include <string>
 class ParseTreeNode {
 public:
+    ParseTreeNode() = delete;
+    ParseTreeNode(std::string name, int id);
+
+    void PushBack(std::shared_ptr<ParseTreeNode> child);
+    void PushFront(std::shared_ptr<ParseTreeNode> child);
     void PrintTree() const;
     void PrintOutput() const;
-
+    auto GetName() const -> const std::string&;
+    auto GetId() const -> int;
 private:
-    std::vector<std::shared_ptr<ParseTreeNode>> children_;
+    std::deque<std::shared_ptr<ParseTreeNode>> children_;
     std::string name_;
-    int ID;
+    int id_;
 };

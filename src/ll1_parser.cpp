@@ -1,4 +1,5 @@
 #include "ll1_parser.h"
+#include <cassert>
 #include <stdexcept>
 
 LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table) : reporter_(std::make_shared<ErrorReporter>()), root_(nullptr) {
@@ -30,39 +31,74 @@ LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table)
  */
 auto LL1Parser::ParseTokens(std::shared_ptr<const TokenStream> tokens) -> std::shared_ptr<ParseTreeNode> {
     std::stack<int> parsing_stack;
-    auto index = 0;
-    parsing_stack.push(static_cast<int>(NonTerminalType::threshold) + 1);
+    std::stack<std::shared_ptr<ParseTreeNode>> nodes;
+    size_t index = 0;
+    auto start_symbol = static_cast<int>(NonTerminalType::threshold) + 1;
+    parsing_stack.push(start_symbol);
+    root_ = std::make_shared<ParseTreeNode>(name_table_[start_symbol], start_symbol);
+    nodes.push(root_);
 
-    while (index < tokens->Size() && !parsing_stack.empty()) {
+    while (!parsing_stack.empty()) {
         auto symbol = parsing_stack.top();
+        auto node = nodes.top();
+        nodes.pop();
         parsing_stack.pop();
-
-        auto token = tokens->TokenAt(index);
+        assert(symbol == node->GetId());
+        auto token = Token({-1, -1, " unknown sentence ", tokens->TokenAt(tokens->Size() - 1).line_, tokens->TokenAt(tokens->Size() - 1).col_ + 1});
+        if (index < tokens->Size()) {
+            token = tokens->TokenAt(index);
+        }
         if (symbol < static_cast<int>(NonTerminalType::threshold)) {
             // it is a terminal symbol
             if (symbol == token.id_) {
                 index++;
+                auto new_node = std::make_shared<ParseTreeNode>(name_table_[symbol], symbol);
+                assert(node != nullptr);
+                node->PushBack(new_node);
             } else {
-                // missing non-terminal symbol, add it to the reporter.
-                reporter_->Report(ErrorLevel::Error, ErrorCode::MissingSymbol, token.line_, token.col_, name_table_[symbol]);
+                // missing non-terminal symbol
+                auto last_token = token;
+                if (index - 1 >= 0) {
+                    last_token = tokens->TokenAt(index - 1);
+                }
+                reporter_->Report(ErrorLevel::Error, ErrorCode::MissingSymbol, last_token.line_, last_token.col_, name_table_[symbol]);
             }
         } else if (symbol < static_cast<int>(NonTerminalType::end)) {
             // it is a non-terminal symbol
             auto prods = predict_table_[static_cast<NonTerminalType>(symbol)];
             if (prods.find(token.id_) != prods.end()) {
                 auto prod = prods[token.id_];
-                for (auto i = prod.size() - 1; i > -1; i--) {
+                for (int i = prod.size() - 1; i > -1; i--) {
                     parsing_stack.push(prod[i]);
+                    auto new_node = std::make_shared<ParseTreeNode>(name_table_[prod[i]], prod[i]);
+                    assert(node != nullptr);
+                    node->PushFront(new_node);
+                    nodes.push(new_node);
                 }
             } else {
-                // unexpected token
-                reporter_->Report(ErrorLevel::Error, ErrorCode::UnexpectedCharacterChinese, token.line_, token.col_, token.lexeme_);
-                index++;
+                auto flag = false;
+                // check for eplison productions
+                for (const auto& prod : prods) {
+                    if (prod.second[0] == static_cast<int>(NonTerminalType::end)) {
+                        flag = true;
+                    }
+                }
+                if (!flag) {
+                    // unexpected token
+                    reporter_->Report(ErrorLevel::Error, ErrorCode::UnexpectedCharacterChinese, token.line_, token.col_, token.lexeme_);
+                    index++;
+                }
             }
         } else if (symbol > static_cast<int>(NonTerminalType::end)) {
             throw std::runtime_error("invalid symbol!\n");
         }
     }
+
+    for (;index < tokens->Size(); index++) {
+        auto token = tokens->TokenAt(index);
+        reporter_->Report(ErrorLevel::Error, ErrorCode::UnexpectedCharacterChinese, token.line_, token.col_, token.lexeme_);
+    }
+    return root_;
 }
 
 void LL1Parser::PrintErrors() const {
