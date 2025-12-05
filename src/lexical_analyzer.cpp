@@ -307,6 +307,7 @@ auto LexicalAnalyzer::Tokenize() -> std::shared_ptr<const TokenStream> {
 						Advance(); 
 						if (pos_ == static_cast<int>(source_.size() - 2)) {
 							tokens_->PushBack(81, std::move(token), line_, col_);
+							// comments never wrapped, so it is called UnterminatedComment
 							reporter_->Report(ErrorLevel::Error, ErrorCode::UnterminatedComment, line_, col_, std::move("no extra")); 
 							return tokens_;
 						}

@@ -35,10 +35,10 @@ void Analysis()
 	// ------------------
 
     /********* Begin *********/
-    auto lexer = LexicalAnalyzer(prog);
+    LexicalAnalyzer lexer(prog);
 	auto tokens = lexer.Tokenize();
 	lexer.PrintErrors();
-    tokens->PrintAll();
+    // tokens->PrintAll();
 	LL1Parser parser(lexer.GetTable());
 	auto trees = parser.ParseTokens(tokens);
 	parser.PrintErrors();

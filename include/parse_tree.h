@@ -1,6 +1,7 @@
 #include <memory>
 #include <deque>
 #include <string>
+#include <iostream>
 class ParseTreeNode {
 public:
     ParseTreeNode() = delete;
@@ -13,6 +14,7 @@ public:
     auto GetName() const -> const std::string&;
     auto GetId() const -> int;
 private:
+    void PrintDfs(std::shared_ptr<ParseTreeNode> root, int layer) const;
     std::deque<std::shared_ptr<ParseTreeNode>> children_;
     std::string name_;
     int id_;

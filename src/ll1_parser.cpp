@@ -24,6 +24,7 @@ LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table)
     name_table_.insert({static_cast<int>(NonTerminalType::multexpr), std::string("multexpr")});
     name_table_.insert({static_cast<int>(NonTerminalType::multexprprime), std::string("multexprprime")});
     name_table_.insert({static_cast<int>(NonTerminalType::simpleexpr), std::string("simpleexpr")});
+    name_table_.insert({static_cast<int>(NonTerminalType::end), std::string("E")});
 }
 
 /*
@@ -52,9 +53,6 @@ auto LL1Parser::ParseTokens(std::shared_ptr<const TokenStream> tokens) -> std::s
             // it is a terminal symbol
             if (symbol == token.id_) {
                 index++;
-                auto new_node = std::make_shared<ParseTreeNode>(name_table_[symbol], symbol);
-                assert(node != nullptr);
-                node->PushBack(new_node);
             } else {
                 // missing non-terminal symbol
                 auto last_token = token;
@@ -80,7 +78,11 @@ auto LL1Parser::ParseTokens(std::shared_ptr<const TokenStream> tokens) -> std::s
                 // check for eplison productions
                 for (const auto& prod : prods) {
                     if (prod.second[0] == static_cast<int>(NonTerminalType::end)) {
+                        auto new_node = std::make_shared<ParseTreeNode>(name_table_[prod.second[0]], prod.second[0]);
+                        assert(node != nullptr);
+                        node->PushFront(new_node);
                         flag = true;
+                        break;
                     }
                 }
                 if (!flag) {
