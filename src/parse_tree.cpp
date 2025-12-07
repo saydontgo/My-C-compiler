@@ -1,8 +1,10 @@
 #include "parse_tree.h"
+#include "ll1_analyzer.h"
 #include "token.h"
 #include <memory>
 
 auto ParseTreeNode::invalid_table_ = std::make_shared<std::unordered_set<lex_id_t>>();
+auto ParseTreeNode::key_table_ = std::unordered_map<std::string, lex_id_t>();
 ParseTreeNode::ParseTreeNode(std::string name, lex_id_t id) : name_(name), id_(id) {}
 
 void ParseTreeNode::PushBack(std::shared_ptr<ParseTreeNode> child) {
@@ -16,15 +18,67 @@ void ParseTreeNode::PushFront(std::shared_ptr<ParseTreeNode> child) {
 auto ParseTreeNode::IsInvalid(lex_id_t id) -> bool {
     return invalid_table_->count(id);
 }
-auto ParseTreeNode::ConvertToAst(std::shared_ptr<ParseTreeNode> node) -> std::deque<std::shared_ptr<ParseTreeNode>> {
-    std::deque<std::shared_ptr<ParseTreeNode>> tmp;
-    // convert all children first
+
+void ParseTreeNode::Normalize(std::shared_ptr<ParseTreeNode> node) {
+    lex_id_t target = -1;
+    std::string nor_name;
+    switch (node->id_) {
+        case static_cast<lex_id_t>(NonTerminalType::assgstmt) :
+            target = key_table_["="];
+            nor_name = "=";
+            break;
+        case static_cast<lex_id_t>(NonTerminalType::ifstmt) :
+            target = key_table_["if"];
+            nor_name = "if";
+            break;
+        case static_cast<lex_id_t>(NonTerminalType::whilestmt) :
+            target = key_table_["while"];
+            nor_name = "while";
+            break;
+        case static_cast<lex_id_t>(NonTerminalType::arithexpr) :
+            for (const auto& child : node->children_) {
+                switch (child->name_[0]) {
+                    case '*' : target = key_table_["*"]; nor_name = "*"; break;
+                    case '+' : target = key_table_["+"]; nor_name = "+"; break;
+                    case '-' : target = key_table_["-"]; nor_name = "-"; break;
+                    case '/' : target = key_table_["/"]; nor_name = "/"; break;
+                    default : return;
+                }
+            }
+            break;
+        default :
+            return;
+    }
+    node->id_ = target;
+    node->name_ = nor_name;
+    int delete_flag = 0;
+    std::shared_ptr<ParseTreeNode> tmp;
     for (auto& child : node->children_) {
-        auto res = ConvertToAst(child);
-        tmp.insert(tmp.end(), res.begin(), res.end());
+        if (child->id_ == node->id_) {
+            std::cout << child->name_ << " " << child->children_.size() <<  std::endl;
+            if (!child->children_.empty()) {
+                child = child->children_[0];
+            } else {
+                delete_flag = 1;
+                tmp = child;
+            }
+            break;
+        }
     }
 
-    node->children_ = std::move(tmp);
+    if (delete_flag) {
+        node->children_.erase(
+            std::remove(node->children_.begin(), node->children_.end(), tmp),
+            node->children_.end()
+        );
+    }
+}
+
+auto ParseTreeNode::ConvertToAst(std::shared_ptr<ParseTreeNode> node) -> std::shared_ptr<ParseTreeNode> {
+    // convert all children first
+    for (auto& child : node->children_) {
+        child = ConvertToAst(child);
+    }
 
     // remove invalid children
     node->children_.erase(
@@ -33,27 +87,32 @@ auto ParseTreeNode::ConvertToAst(std::shared_ptr<ParseTreeNode> node) -> std::de
     );
 
     if (IsInvalid(node->GetId())) {
-        for (const auto& child : node->children_) {
-            tmp.push_back(child);
+        switch (node->children_.size()) {
+            case 0 : return nullptr;
+            case 1 : return node->children_[0];
+            default : 
+            node->id_ = node->children_[0]->id_;
+            node->name_ = node->children_[0]->name_;
+            node->children_.erase(
+                std::remove(node->children_.begin(), node->children_.end(), node->children_[0]),
+                node->children_.end()
+            );
         }
-        return tmp;
     }
-    tmp.push_back(node);
-    return tmp;
+
+    Normalize(node);
+    return node;
 }
 
 void ParseTreeNode::Abstract() {
-    std::deque<std::shared_ptr<ParseTreeNode>> tmp;
     // convert all children first
     for (auto& child : children_) {
-        auto res = ConvertToAst(child);
-        tmp.insert(tmp.end(), res.begin(), res.end());
+        child = ConvertToAst(child);
     }
-    children_ = std::move(tmp);
 
     // remove invalid children
     children_.erase(
-        std::remove(children_.begin(),children_.end(), nullptr),
+        std::remove(children_.begin(), children_.end(), nullptr),
         children_.end()
     );
 }

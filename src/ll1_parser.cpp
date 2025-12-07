@@ -43,6 +43,7 @@ LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table)
     invalid_table_->insert(key_table.find(";")->second);
 
     ParseTreeNode::invalid_table_ = this->invalid_table_;
+    ParseTreeNode::key_table_ = key_table;
 }
 
 /*
