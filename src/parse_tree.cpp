@@ -55,7 +55,6 @@ void ParseTreeNode::Normalize(std::shared_ptr<ParseTreeNode> node) {
     std::shared_ptr<ParseTreeNode> tmp;
     for (auto& child : node->children_) {
         if (child->id_ == node->id_) {
-            std::cout << child->name_ << " " << child->children_.size() <<  std::endl;
             if (!child->children_.empty()) {
                 child = child->children_[0];
             } else {
@@ -91,12 +90,21 @@ auto ParseTreeNode::ConvertToAst(std::shared_ptr<ParseTreeNode> node) -> std::sh
             case 0 : return nullptr;
             case 1 : return node->children_[0];
             default : 
-            node->id_ = node->children_[0]->id_;
-            node->name_ = node->children_[0]->name_;
-            node->children_.erase(
-                std::remove(node->children_.begin(), node->children_.end(), node->children_[0]),
-                node->children_.end()
-            );
+            for (auto& child : node->children_) {
+                if (child->name_ == "+" || child->name_ == "*" || child->name_ == "-" || child->name_ == "/" || 
+                    child->name_ == "==" || child->name_ == ">=" || child->name_ == "<=" || child->name_ == ">" || 
+                    child->name_ == "<") {
+                    node->id_ = child->id_;
+                    node->name_ = child->name_;
+                    auto grand_children = child->children_;
+                    node->children_.erase(
+                        std::remove(node->children_.begin(), node->children_.end(), child),
+                        node->children_.end()
+                    );
+                    node->children_.insert(node->children_.end(), grand_children.begin(), grand_children.end());
+                    return node;
+                }
+            }
         }
     }
 

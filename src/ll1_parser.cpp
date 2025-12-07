@@ -32,6 +32,7 @@ LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table)
     invalid_table_->insert(static_cast<int>(NonTerminalType::stmt));
     invalid_table_->insert(static_cast<int>(NonTerminalType::compoundstmt));
     invalid_table_->insert(static_cast<int>(NonTerminalType::boolexpr));
+    invalid_table_->insert(static_cast<int>(NonTerminalType::boolop));
     invalid_table_->insert(static_cast<int>(NonTerminalType::arithexpr));
     invalid_table_->insert(static_cast<int>(NonTerminalType::arithexprprime));
     invalid_table_->insert(static_cast<int>(NonTerminalType::multexpr));
@@ -40,7 +41,10 @@ LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table)
     invalid_table_->insert(static_cast<int>(NonTerminalType::end));
     invalid_table_->insert(key_table.find("{")->second);
     invalid_table_->insert(key_table.find("}")->second);
+    invalid_table_->insert(key_table.find("(")->second);
+    invalid_table_->insert(key_table.find(")")->second);
     invalid_table_->insert(key_table.find(";")->second);
+    invalid_table_->insert(key_table.find("then")->second);
 
     ParseTreeNode::invalid_table_ = this->invalid_table_;
     ParseTreeNode::key_table_ = key_table;
