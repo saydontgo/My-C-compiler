@@ -1,10 +1,11 @@
 #include "ll1_parser.h"
 #include <cassert>
+#include <memory>
 #include <stdexcept>
 
-LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table) : reporter_(std::make_shared<ErrorReporter>()), root_(nullptr) {
-    LL1Analyzer tmp(key_table);
-    predict_table_ = tmp.BuildTable();
+LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table) : reporter_(std::make_shared<ErrorReporter>()), root_(nullptr), invalid_table_(std::make_shared<std::unordered_set<lex_id_t>>()) {
+    LL1Analyzer ana(key_table);
+    predict_table_ = ana.BuildTable();
 
     for (const auto& KVpair : key_table) {
         name_table_.insert({KVpair.second, KVpair.first});
@@ -25,6 +26,23 @@ LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table)
     name_table_.insert({static_cast<int>(NonTerminalType::multexprprime), std::string("multexprprime")});
     name_table_.insert({static_cast<int>(NonTerminalType::simpleexpr), std::string("simpleexpr")});
     name_table_.insert({static_cast<int>(NonTerminalType::end), std::string("E")});
+
+    
+    invalid_table_->insert(static_cast<int>(NonTerminalType::stmts));
+    invalid_table_->insert(static_cast<int>(NonTerminalType::stmt));
+    invalid_table_->insert(static_cast<int>(NonTerminalType::compoundstmt));
+    invalid_table_->insert(static_cast<int>(NonTerminalType::boolexpr));
+    invalid_table_->insert(static_cast<int>(NonTerminalType::arithexpr));
+    invalid_table_->insert(static_cast<int>(NonTerminalType::arithexprprime));
+    invalid_table_->insert(static_cast<int>(NonTerminalType::multexpr));
+    invalid_table_->insert(static_cast<int>(NonTerminalType::multexprprime));
+    invalid_table_->insert(static_cast<int>(NonTerminalType::simpleexpr));
+    invalid_table_->insert(static_cast<int>(NonTerminalType::end));
+    invalid_table_->insert(key_table.find("{")->second);
+    invalid_table_->insert(key_table.find("}")->second);
+    invalid_table_->insert(key_table.find(";")->second);
+
+    ParseTreeNode::invalid_table_ = this->invalid_table_;
 }
 
 /*

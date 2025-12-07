@@ -20,7 +20,7 @@ void Analysis()
 
 	// using files to read
 	std::ifstream ifs;
-	ifs.open("../test_data/project2/test4.in", std::ios::in);
+	ifs.open("../test_data/project2/test2.in", std::ios::in);
 	if (!ifs.is_open())
     {
         std::cout << "read fail." << std::endl;
@@ -42,6 +42,8 @@ void Analysis()
 	LL1Parser parser(lexer.GetTable());
 	auto trees = parser.ParseTokens(tokens);
 	parser.PrintErrors();
+	trees->PrintOutput();
+	trees->Abstract();
 	trees->PrintOutput();
     /********* End *********/
 	

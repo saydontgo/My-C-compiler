@@ -7,7 +7,7 @@
 #include <stack>
 #include <unordered_map>
 #include <string>
-#include <stdexcept>
+#include <unordered_set>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -36,6 +36,7 @@ public:
 private:
     std::shared_ptr<ErrorReporter> reporter_;
     std::shared_ptr<ParseTreeNode> root_;
+    std::shared_ptr<std::unordered_set<lex_id_t>> invalid_table_;
     std::unordered_map<NonTerminalType, std::unordered_map<lex_id_t, std::vector<int>>> predict_table_;
 
     // name table, only for debug and output purposes
