@@ -48,6 +48,19 @@ LL1Parser::LL1Parser(const std::unordered_map<std::string, lex_id_t>& key_table)
 
     ParseTreeNode::invalid_table_ = this->invalid_table_;
     ParseTreeNode::key_table_ = key_table;
+
+    ParseTreeNode::rank_table_.insert({"==", boolexpr});
+    ParseTreeNode::rank_table_.insert({">=", boolexpr});
+    ParseTreeNode::rank_table_.insert({"<=", boolexpr});
+    ParseTreeNode::rank_table_.insert({"<", boolexpr});
+    ParseTreeNode::rank_table_.insert({">", boolexpr});
+
+    ParseTreeNode::rank_table_.insert({"+", plusminus});
+    ParseTreeNode::rank_table_.insert({"-", plusminus});
+
+    ParseTreeNode::rank_table_.insert({"*", multdiv});
+    ParseTreeNode::rank_table_.insert({"/", multdiv});
+
 }
 
 /*

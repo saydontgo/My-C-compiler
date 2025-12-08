@@ -1,0 +1,7 @@
+{
+if ( ID == ID * NUM + ID + NUM * ID)
+then
+ID = NUM * NUM;
+else
+ID = ID * NUM ;
+}

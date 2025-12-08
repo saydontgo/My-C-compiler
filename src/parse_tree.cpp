@@ -5,6 +5,7 @@
 
 auto ParseTreeNode::invalid_table_ = std::make_shared<std::unordered_set<lex_id_t>>();
 auto ParseTreeNode::key_table_ = std::unordered_map<std::string, lex_id_t>();
+auto ParseTreeNode::rank_table_ = std::unordered_map<std::string, int>();
 ParseTreeNode::ParseTreeNode(std::string name, lex_id_t id) : name_(name), id_(id) {}
 
 void ParseTreeNode::PushBack(std::shared_ptr<ParseTreeNode> child) {
@@ -90,21 +91,27 @@ auto ParseTreeNode::ConvertToAst(std::shared_ptr<ParseTreeNode> node) -> std::sh
             case 0 : return nullptr;
             case 1 : return node->children_[0];
             default : 
+            std::shared_ptr<ParseTreeNode> tmp_child;
             for (auto& child : node->children_) {
                 if (child->name_ == "+" || child->name_ == "*" || child->name_ == "-" || child->name_ == "/" || 
                     child->name_ == "==" || child->name_ == ">=" || child->name_ == "<=" || child->name_ == ">" || 
                     child->name_ == "<") {
-                    node->id_ = child->id_;
-                    node->name_ = child->name_;
-                    auto grand_children = child->children_;
-                    node->children_.erase(
-                        std::remove(node->children_.begin(), node->children_.end(), child),
-                        node->children_.end()
-                    );
-                    node->children_.insert(node->children_.end(), grand_children.begin(), grand_children.end());
-                    return node;
+                    if (tmp_child == nullptr) {
+                        tmp_child = child;
+                    } else if (rank_table_[tmp_child->name_] > rank_table_[child->name_]) {
+                        tmp_child = child;
+                    }
                 }
             }
+            node->id_ = tmp_child->id_;
+            node->name_ = tmp_child->name_;
+            auto grand_children = tmp_child->children_;
+            node->children_.erase(
+                std::remove(node->children_.begin(), node->children_.end(), tmp_child),
+                node->children_.end()
+            );
+            node->children_.insert(node->children_.end(), grand_children.begin(), grand_children.end());
+            return node;
         }
     }
 

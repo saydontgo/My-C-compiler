@@ -8,6 +8,10 @@
 #include <unordered_map>
 #include "token.h"
 
+
+enum rank {
+    boolexpr, plusminus, multdiv
+};
 class ParseTreeNode {
 public:
     ParseTreeNode() = delete;
@@ -22,6 +26,7 @@ public:
     
    static std::shared_ptr<std::unordered_set<lex_id_t>> invalid_table_;
    static std::unordered_map<std::string, lex_id_t> key_table_;
+   static std::unordered_map<std::string, int> rank_table_;
 private:
     void PrintDfs(std::shared_ptr<ParseTreeNode> root, int layer) const;
     static auto ConvertToAst(std::shared_ptr<ParseTreeNode> node) -> std::shared_ptr<ParseTreeNode>;

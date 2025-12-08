@@ -1,0 +1,6 @@
+{
+while ( ID == ID / NUM + NUM ) 
+{
+ID = NUM ;
+}
+}
