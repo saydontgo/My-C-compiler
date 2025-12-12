@@ -1,0 +1,16 @@
+/*
+ *  本测试用例测试了除 未闭合注释 之外的所有可能的词法错误，具体的错误可以看相应的注释
+ *  错误呈现的方式为 Error [line 错误发生的行, col 错误发生的列]: 错误原因.
+ */
+
+int main()
+{char c = 'h'; $$$      // Unexpected character ‘$$$’ 错误
+if (c=='\h')            // Invalid escape sequence: '\h' 错误
+printf("%c",c);
+c = '9;                 // Missing terminating ' character 错误
+c = '';                 // Empty character constant 错误
+
+printf("这是一条没有结尾的字符串)   // Unterminated string literal 错误
+else c='9';return 0;
+}
+

@@ -13,40 +13,20 @@ void read_prog(std::string& prog)
 }
 /* 你可以添加其他函数 */
 
-void Analysis()
+void Analysis(std::string& prog)
 {
-	std::string prog = "";
-	// read_prog(prog);
-
-	// using files to read
-	std::ifstream ifs;
-	ifs.open("../test_data/project2/my_test3.in", std::ios::in);
-	if (!ifs.is_open())
-    {
-        std::cout << "read fail." << std::endl;
-		std::abort();
-	}
-	char c;
-	while ((c = ifs.get()) != EOF)
-	{
-		prog += c;
-	}
-	prog += '\n';
-	// ------------------
-
     /********* Begin *********/
     LexicalAnalyzer lexer(prog);
 	auto tokens = lexer.Tokenize();
 	lexer.PrintErrors();
-    // tokens->PrintAll();
+    tokens->PrintAll();
 	LL1Parser parser(lexer.GetTable());
 	auto trees = parser.ParseTokens(tokens);
 	parser.PrintErrors();
-	trees->PrintOutput();
+	// trees->PrintOutput();
 	trees->Abstract();
 	trees->PrintOutput();
     /********* End *********/
-	
 }
 
 void test_ll1Analyzer() {
@@ -77,9 +57,32 @@ void test_ll1Analyzer() {
 	}
 }
 
-int main()
+int main(int argc, char*argv[])
 {
-	Analysis(); 
+	std::string prog = "";
+	// read_prog(prog);
+
+	if (argc != 2) { 
+		std::cout << "insufficent or reduntant parameters" << std::endl;
+		std::abort();
+	}
+	// using files to read
+	std::ifstream ifs;
+	ifs.open(argv[1], std::ios::in);
+	if (!ifs.is_open())
+    {
+        std::cout << "read fail." << std::endl;
+		std::abort();
+	}
+	char c;
+	while ((c = ifs.get()) != EOF)
+	{
+		prog += c;
+	}
+	prog += '\n';
+
+
+	Analysis(prog); 
 	// test_ll1Analyzer();
  	return 0;
 }

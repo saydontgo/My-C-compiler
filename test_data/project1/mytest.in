@@ -1,5 +1,0 @@
-int main()
-{char c = 'h';/* 注释 12313test */
-if (c=='h')printf("%c",c);
-else c='9';return 0;
-}/*gfh***** /
